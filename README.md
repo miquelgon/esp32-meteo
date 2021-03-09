@@ -1,6 +1,6 @@
 # esp32-meteo-thingspeak-deepsleep
 
-Meteo statio based on BME280 sensor, for temperature, humidity and barometer.
+Meteo statio based on ESP32 + BME280 sensor for temperature, humidity and barometer.
 
 Connect to wifi + uploads data to thingspeak server every 5 min, with deepsleep.
 
