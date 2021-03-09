@@ -12,7 +12,7 @@ Connections:
 - esp32 GND - bme280 GND
 - esp32 G22 - bme280 SCL
 - esp32 G21 - bme280 SDA
-- (optional) led + 5k resistor from esp32 G04 to GND
+
 
 
 
