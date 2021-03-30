@@ -3,15 +3,17 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
-#include <HTTPClient.h>
+
 
 #include "version.h"
 #include "config.h"
+#include "uploadthingspeak.hpp"
 
-const char* ssid     = CFG_SSID;
-const char* password = CFG_PASSWORD;
+const char * ssid     = CFG_SSID;
+const char * password = CFG_PASSWORD;
+
 String apiKey = CFG_THINGSPEAK_APIKEY;     
-const char* serverName = CFG_THINGSPEAK_SERVER;
+String serverName = CFG_THINGSPEAK_SERVER;
 
 // upload data freq in seconds
 const int freq_s = 300;
@@ -48,6 +50,7 @@ int wifiConnect() {
   return 1;
 }
 
+
 void wifiDisconnect() {
   WiFi.disconnect();
 }
@@ -63,29 +66,16 @@ void setup() {
   // get bme280 sensor data -------------------------------------------------------
   bme.begin(0x76);   
   Serial.println("BME ID: " + String(bme.sensorID()));
-  float temperature = bme.readTemperature();
-  float humidity = bme.readHumidity();
-  float pressure = bme.readPressure() / 100.0F;
-  Serial.println("BME280 data: t:" + String(temperature) + " h:" + String(humidity) + " p:" + String(pressure));
+
+  UploadData ud; 
+  ud.temperature = bme.readTemperature();
+  ud.humidity = bme.readHumidity();
+  ud.pressure = bme.readPressure() / 100.0F;
+  Serial.println("BME280 data: t:" + String(ud.temperature) + " h:" + String(ud.humidity) + " p:" + String(ud.pressure));
 
   // connect to wifi & send data to server  ---------------------------------------
-
   if (wifiConnect() == 1) {
-
-    HTTPClient http;
-    http.begin(serverName);
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-    String httpRequestData = "api_key=" + apiKey + 
-                             "&field1=" + String(temperature) +    
-                             "&field2=" + String(humidity) +    
-                             "&field3=" + String(pressure);
-    
-    int httpResponseCode = http.POST(httpRequestData);
-    http.end();
-    
-    Serial.println("sent:" + httpRequestData);
-    Serial.println("recv:" + String(httpResponseCode));
-    
+    uploadDataHTTP(serverName, apiKey, &ud);
     wifiDisconnect();
   }
 
