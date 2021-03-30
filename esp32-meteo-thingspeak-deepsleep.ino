@@ -5,8 +5,9 @@
 #include <Adafruit_BME280.h>
 #include <HTTPClient.h>
 
-
+#include "version.h"
 #include "config.h"
+
 const char* ssid     = CFG_SSID;
 const char* password = CFG_PASSWORD;
 String apiKey = CFG_THINGSPEAK_APIKEY;     
@@ -22,21 +23,29 @@ RTC_DATA_ATTR int bootCount = 0;
 
 Adafruit_BME280 bme;
 
-void wifiConnect() {
+int wifiConnect() {
   Serial.println("Connecting to Wifi... ssid:" + String(ssid));
   //connect to your local wi-fi network
   WiFi.begin(ssid, password);
 
   //check wi-fi is connected to wi-fi network
+  int wifi_retries = 0; 
   while (WiFi.status() != WL_CONNECTED) {
+    if (wifi_retries > 15) {
+      Serial.print("Error connecting to wifi (max_retries exceeded)");
+      return 0;
+    }
     delay(1000);
     Serial.print(".");
+    wifi_retries ++;
+        
   }
   Serial.println("WiFi connected !!!!");
   Serial.print("IP:");
   Serial.println(WiFi.localIP());
   Serial.print("RSSI:");
   Serial.println(WiFi.RSSI());
+  return 1;
 }
 
 void wifiDisconnect() {
@@ -49,8 +58,7 @@ void setup() {
  
   Serial.begin(115200);
 
-  ++bootCount;
-  Serial.println("--------------INIT setup, Boot number: " + String(bootCount));
+  Serial.println("--------------INIT setup, version: " + String(CODEVERSION));
 
   // get bme280 sensor data -------------------------------------------------------
   bme.begin(0x76);   
@@ -61,23 +69,25 @@ void setup() {
   Serial.println("BME280 data: t:" + String(temperature) + " h:" + String(humidity) + " p:" + String(pressure));
 
   // connect to wifi & send data to server  ---------------------------------------
-  wifiConnect();
 
-  HTTPClient http;
-  http.begin(serverName);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  String httpRequestData = "api_key=" + apiKey + 
-                           "&field1=" + String(temperature) +    
-                           "&field2=" + String(humidity) +    
-                           "&field3=" + String(pressure);
-  
-  int httpResponseCode = http.POST(httpRequestData);
-  http.end();
-  
-  Serial.println("sent:" + httpRequestData);
-  Serial.println("recv:" + String(httpResponseCode));
-  
-  wifiDisconnect();
+  if (wifiConnect() == 1) {
+
+    HTTPClient http;
+    http.begin(serverName);
+    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    String httpRequestData = "api_key=" + apiKey + 
+                             "&field1=" + String(temperature) +    
+                             "&field2=" + String(humidity) +    
+                             "&field3=" + String(pressure);
+    
+    int httpResponseCode = http.POST(httpRequestData);
+    http.end();
+    
+    Serial.println("sent:" + httpRequestData);
+    Serial.println("recv:" + String(httpResponseCode));
+    
+    wifiDisconnect();
+  }
 
   // DEEP sleep  ---------------------------------------------
   long tx = millis() - t0;
