@@ -4,7 +4,7 @@ Meteo statio based on ESP32 + BME280 sensor for temperature, humidity and barome
 
 Connect to wifi + uploads sensor data to MQTT , with deepsleep.
 
-Enter private data in config.h 
+Copy config.h.template -> config.h and enter private and config data.
 
 MQTT topic (thingspeak compatible)
 "channels/<channelID>/publish/<channelApiKey>"
