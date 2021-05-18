@@ -1,0 +1,21 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// frequency in seconds
+#define CFG_FREQ_S 5
+
+// wifi ----------------------------------------------------------
+#define CFG_SSID "<yourssid>"
+#define CFG_PASSWORD "<yourpassword>"
+
+// channel  ---------------------------------------------------
+#define CFG_CHANNELID <channelID>
+#define CFG_APIKEY "<channel write apykey>"
+
+// MQTT  ---------------------------------------------------------
+#define CFG_MQTT_SERVER "<mqtt host>"
+#define CFG_MQTT_PORT 1883
+#define CFG_MQTT_USER "<mqtt user name>"
+#define CFG_MQTT_PASS "<mqtt password>"
+
+#endif
