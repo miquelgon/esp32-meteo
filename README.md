@@ -7,7 +7,7 @@ Connect to wifi + uploads sensor data to MQTT , with deepsleep.
 Copy config.h.template -> config.h and enter private and config data.
 
 MQTT topic (thingspeak compatible)
-"channels/<channelID>/publish/<channelApiKey>"
+"channels/--channelID--/publish/--channelApiKey--"
 
 -----------------------------------------------
 Board Connections ESP32 - BME280: 
